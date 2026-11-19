@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Original glyph matching the app icon: outlined speech bubble with three lines. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="24dp" android:height="24dp"
+        android:viewportWidth="24" android:viewportHeight="24">
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF"
+          android:strokeWidth="1.8" android:strokeLineJoin="round" android:strokeLineCap="round"
+          android:pathData="M8,4 H16 A7,7 0 0 1 16,18 H15.5 L17.5,22 Q14.5,20.5 12.5,18 H8 A7,7 0 0 1 8,4 Z"/>
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF"
+          android:strokeWidth="1.5" android:strokeLineCap="round"
+          android:pathData="M8.5,8.5 H15.5 M6.5,11 H17.5 M9.5,13.5 H14.5"/>
+</vector>

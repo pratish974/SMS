@@ -1,0 +1,18 @@
+# S2: weekly PRs for outdated or vulnerable dependencies. Each PR runs CI before merge.
+# The "Dependabot verification metadata" workflow adds new checksums to each Gradle PR.
+version: 2
+updates:
+  - package-ecosystem: gradle
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    groups:
+      androidx:
+        patterns: ["androidx.*"]
+      kotlin-and-ksp:
+        patterns: ["org.jetbrains.kotlin*", "com.google.devtools.ksp*"]
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly

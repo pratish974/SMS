@@ -1,0 +1,49 @@
+# Build pipeline: runs on every push and pull request.
+# Unit tests, lint, release build with the size budget, and a debug APK named with the app version.
+name: CI
+
+on:
+  push:
+    branches-ignore: [dependabot/**] # Dependabot branches are covered by their pull request run
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-build
+
+      - name: Version
+        id: version
+        run: |
+          ./gradlew -q :app:printVersion | tee -a "$GITHUB_OUTPUT"
+
+      - name: Unit tests, lint, release build, size budget, debug APK
+        run: ./gradlew --stacktrace :app:testDebugUnitTest :app:lintDebug :app:checkReleaseSize :app:assembleDebug
+
+      - name: Debug APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: sms-${{ steps.version.outputs.versionName }}-debug-${{ github.run_number }}
+          path: app/build/outputs/apk/debug/*.apk
+          retention-days: 14
+
+      - name: Test and lint reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: reports-${{ github.run_number }}
+          path: |
+            app/build/reports/
+            app/build/test-results/
+          retention-days: 14
