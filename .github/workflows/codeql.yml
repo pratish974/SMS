@@ -1,0 +1,52 @@
+# CodeQL code scanning (advanced setup) for the app's Kotlin/Java code.
+#
+# GitHub's "default setup" uses build-mode "none", which can't analyse Kotlin and fails with
+# "could not process any of it using the 'none' build mode". Kotlin needs the code to be compiled
+# while CodeQL watches, so this workflow builds the app itself (build-mode: manual).
+#
+# After merging this file: Settings -> Code security -> Code scanning -> CodeQL analysis ->
+# "Switch to advanced" (or disable default setup); the two setups can't run side by side.
+name: CodeQL
+
+on:
+  push:
+    branches: [master, develop]
+  pull_request:
+  schedule:
+    - cron: "0 4 * * 1" # Mondays 04:00 UTC (09:30 IST)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: Analyze (java-kotlin)
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-build
+
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: java-kotlin
+          build-mode: manual
+          queries: security-extended
+
+      # CodeQL only sees code that is compiled during this step; no Gradle build cache, so every
+      # Kotlin file is actually compiled (a cache hit would skip it and leave nothing to analyse).
+      - name: Build
+        run: ./gradlew --no-build-cache --no-configuration-cache --rerun-tasks :app:compileDebugKotlin :app:compileDebugUnitTestKotlin
+
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:java-kotlin
