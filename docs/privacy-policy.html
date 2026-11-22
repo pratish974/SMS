@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy – SMS</title>
+<style>
+  :root { color-scheme: light dark; --fg:#1d1d1f; --muted:#5f6368; --bg:#ffffff; --accent:#2d6bc4; }
+  @media (prefers-color-scheme: dark) { :root { --fg:#e8eaed; --muted:#9aa0a6; --bg:#121212; --accent:#7fb0f0; } }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width:760px; margin:0 auto; padding:32px 16px 64px; }
+  h1 { font-size:1.8rem; margin:0 0 4px; } h2 { font-size:1.2rem; margin-top:2em; }
+  .muted { color:var(--muted); } a { color:var(--accent); }
+  table { border-collapse:collapse; width:100%; } td, th { text-align:left; padding:6px 8px; border-bottom:1px solid #8884; vertical-align:top; }
+</style>
+</head>
+<body>
+<main>
+<h1>Privacy Policy</h1>
+<p class="muted">App: SMS (package <code>com.dns.sms</code>) · Last updated: 21 November 2026</p>
+
+<p>SMS is a messaging app that you can set as your phone's default SMS app. It sends and receives your text messages and organizes them into folders, reminders, orders and bank balances. <strong>All of this is done on your phone.</strong> We have no servers, no accounts, no ads and no analytics, and we never sell or share your data.</p>
+
+<h2>What the app accesses and why</h2>
+<table>
+<tr><th>Data / permission</th><th>Why</th><th>Where it goes</th></tr>
+<tr><td>SMS messages (read, send, receive)</td><td>To work as your default SMS app: show conversations, send and receive messages, notifications, and organize messages into folders, reminders, orders and balances.</td><td>Stays on your phone. Messages remain in Android's own message store.</td></tr>
+<tr><td>Contacts (optional)</td><td>To show names and photos instead of numbers, and to search contacts when writing a message.</td><td>Read on your phone only; never copied or uploaded.</td></tr>
+<tr><td>Phone state (optional, dual-SIM phones)</td><td>To list your SIM cards so you can choose which SIM sends a message.</td><td>Used on your phone only.</td></tr>
+<tr><td>Notifications</td><td>To tell you about new messages, one-time codes and reminders.</td><td>On your phone.</td></tr>
+<tr><td>Alarms</td><td>To send scheduled messages and show reminders on time.</td><td>On your phone.</td></tr>
+<tr><td>Internet</td><td>Used <strong>only</strong> for the optional Google Drive backup you turn on yourself.</td><td>See "Backup" below.</td></tr>
+</table>
+
+<h2>Data the app creates</h2>
+<p>The app keeps a small index on your phone (folder choices, stars, pins, drafts, parsed balances, reminders and orders, scheduled messages). It is stored in an <strong>encrypted database</strong> whose key is protected by Android Keystore. Balances are hidden until you unlock them with your fingerprint, face or screen lock.</p>
+
+<h2>Backup (optional)</h2>
+<p>If you choose a Google account in Settings → Backup &amp; restore, the app saves a backup to that account's private Google Drive app folder (<code>drive.appdata</code>; the app cannot see your other Drive files). The backup is <strong>encrypted on your phone before upload</strong> (AES-256-GCM). The key is kept on your phone and in Google's end-to-end encrypted Block Store, protected by your screen lock, so neither we nor Google can read the backup. You can delete the backup from the app at any time.</p>
+
+<h2>What we do not do</h2>
+<ul>
+<li>No advertising, analytics, tracking or profiling.</li>
+<li>No selling, renting or sharing of messages or any personal data.</li>
+<li>No message content in logs. The app does not upload crash reports. If the app crashes, a short technical log (error type and code location, <em>without</em> message text) is kept on your phone; it is only sent if you tap "Share crash log" in Settings → About and choose where to send it.</li>
+<li>Links in messages never open by themselves; the full address is shown first.</li>
+</ul>
+
+<h2>Your choices and deleting data</h2>
+<ul>
+<li>Switch to another SMS app at any time; this app then stops reading or sending messages.</li>
+<li>Settings → Message rules can delete old one-time codes, promotions and blocked messages (off by default).</li>
+<li>To remove everything the app created on your phone, open Android Settings → Apps → SMS → Storage → <strong>Clear storage</strong>. Your SMS remain in Android's message store unless you delete them.</li>
+<li>Uninstalling the app removes its data from your phone. Delete the Drive backup from the app first if you want that removed too.</li>
+</ul>
+
+<h2>Children</h2>
+<p>The app is not directed at children under 13 and does not knowingly collect data from them.</p>
+
+<h2>Changes</h2>
+<p>If this policy changes, the new version will be posted on this page with a new date.</p>
+
+<h2>Contact</h2>
+<p>Questions or requests: use the developer contact address shown on the app's Google Play page.</p>
+</main>
+</body>
+</html>

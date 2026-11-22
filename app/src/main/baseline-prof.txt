@@ -1,0 +1,36 @@
+# Baseline profile (FEAT-2/perf, 2026-11-21): ahead-of-time compile the code on the hot paths so app
+# start, the conversation list scroll and opening a conversation don't run in the interpreter/JIT.
+# Compose, Room and other AndroidX libraries ship their own profiles; these rules cover our code.
+# Format: H = hot, S = startup, P = post-startup; ** wildcards (see developer.android.com baseline profiles).
+
+# Startup: app, activity, DI, navigation shell, theme
+HSPLcom/dns/sms/SmsApp;->**(**)**
+HSPLcom/dns/sms/MainActivity;->**(**)**
+HSPLcom/dns/sms/di/**;->**(**)**
+HSPLcom/dns/sms/ui/NavKt**;->**(**)**
+HSPLcom/dns/sms/ui/AppRootKt**;->**(**)**
+HSPLcom/dns/sms/ui/theme/**;->**(**)**
+HSPLcom/dns/sms/sms/DefaultSmsGate;->**(**)**
+HSPLcom/dns/sms/settings/AppSettings**;->**(**)**
+HSPLcom/dns/sms/data/**;->**(**)**
+
+# Conversation list: loading, classification, rows, avatars, dates, floating folder bar
+HSPLcom/dns/sms/sms/ConversationRepository**;->**(**)**
+HSPLcom/dns/sms/sms/ContactNames**;->**(**)**
+HSPLcom/dns/sms/sms/PhoneNumbers;->**(**)**
+HSPLcom/dns/sms/classify/**;->**(**)**
+HSPLcom/dns/sms/ui/messages/**;->**(**)**
+HSPLcom/dns/sms/ui/AvatarKt**;->**(**)**
+HSPLcom/dns/sms/ui/Format;->**(**)**
+HSPLcom/dns/sms/ui/FloatingFolderBar**;->**(**)**
+HSPLcom/dns/sms/ui/FolderBarState**;->**(**)**
+
+# Opening a conversation and typing
+HSPLcom/dns/sms/ui/conversation/**;->**(**)**
+HSPLcom/dns/sms/ui/compose/ComposerBarKt**;->**(**)**
+HSPLcom/dns/sms/send/SmsCounter**;->**(**)**
+HSPLcom/dns/sms/util/LinkFinder**;->**(**)**
+
+# Receiving: SMS receiver, notifications
+HSPLcom/dns/sms/receive/**;->**(**)**
+HSPLcom/dns/sms/notify/**;->**(**)**

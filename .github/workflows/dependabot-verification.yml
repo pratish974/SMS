@@ -1,0 +1,34 @@
+# Dependabot PRs change dependency versions, so gradle/verification-metadata.xml needs the new
+# checksums or every build fails verification. This adds them to the PR as a commit for review.
+# After it pushes, re-run the PR's checks (or close and reopen the PR): pushes made with the workflow
+# token don't start new CI runs.
+name: Dependabot verification metadata
+
+on:
+  pull_request:
+    paths: ["gradle/libs.versions.toml", "**/*.gradle.kts", "gradle/wrapper/**"]
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    if: github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.head_ref }}
+      - uses: ./.github/actions/setup-build
+      - name: Regenerate checksums
+        run: |
+          ./gradlew --write-verification-metadata sha256 :app:assembleDebug :app:assembleRelease :app:testDebugUnitTest :app:assembleDebugAndroidTest help
+          ./gradlew --write-verification-metadata sha256 :app:lintDebug
+      - name: Commit if changed
+        run: |
+          if git diff --quiet gradle/verification-metadata.xml; then echo "No checksum changes"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Update dependency verification metadata" gradle/verification-metadata.xml
+          git push

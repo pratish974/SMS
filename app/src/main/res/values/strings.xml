@@ -1,0 +1,387 @@
+<resources>
+    <string name="app_name">SMS</string>
+
+    <!-- Onboarding / disclosure (Requirement.md section 8: prominent disclosure before access). -->
+    <string name="disclosure_title">Your messages stay on this phone</string>
+    <string name="disclosure_body">To work as your SMS app, %1$s needs to read, send and receive your SMS messages, and show notifications for them. If you allow contacts, it also reads contact names and photos to label conversations.\n\nEverything is processed on this device. There are no accounts, no servers, no ads and no analytics. Message content is never shared or sold. If you turn on Google Drive backup, an encrypted copy that only you can unlock is kept in your own Drive.\n\nThe next step asks you to make %1$s your default SMS app. You can say Not now and still open the app; it will ask again next time.</string>
+    <string name="accept">Accept and continue</string>
+    <string name="set_default">Set as default</string>
+    <string name="not_now">Not now</string>
+    <string name="not_default_banner">Not your default SMS app, so messages can\'t be shown or sent.</string>
+
+    <!-- Conversation list -->
+    <string name="empty_promotions">No promotional messages. To send a sender here, long-press their conversation and choose Move to.</string>
+    <string name="empty_transactions">No bank, payment or service messages yet.</string>
+    <string name="empty_personal">No personal conversations yet. Tap the pencil to start one.</string>
+    <string name="starred_empty">Nothing starred yet. Long-press a message and choose Star to keep it here.</string>
+
+    <!-- Conversation -->
+    <string name="back">Back</string>
+    <string name="call">Call</string>
+    <string name="delete_conversation">Delete conversation</string>
+    <string name="delete_conversation_body">This deletes every message in this conversation from your phone. This can\'t be undone.</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="type_message">Type a message</string>
+    <string name="send">Send</string>
+    <string name="status_sending">Sending…</string>
+    <string name="status_sent">Sent</string>
+    <string name="status_delivered">Delivered: %1$s</string>
+    <string name="status_failed">Failed</string>
+    <string name="retry">Retry</string>
+    <string name="load_earlier">Load earlier messages</string>
+    <string name="send_failed">Couldn\'t send message</string>
+
+    <!-- New message -->
+    <string name="new_message_title">New message</string>
+    <string name="bulk_note">Each person gets their own SMS</string>
+
+    <!-- Move To (milestone 3) -->
+    <string name="move_to">Move to</string>
+    <string name="move_conversation_title">Move %1$s to</string>
+    <string name="move_conversation_note">Future messages from this sender go here too.</string>
+    <string name="automatic">Automatic</string>
+    <string name="automatic_desc">Let the app choose the folder</string>
+    <string name="moved_to">Moved to %1$s</string>
+    <string name="more_options">More options</string>
+    <string name="folder_personal">Personal</string>
+    <string name="folder_transactions">Transactions</string>
+    <string name="folder_promotions">Promotions</string>
+
+    <!-- Milestone 4: message actions -->
+    <string name="search">Search</string>
+    <string name="search_hint">Search messages and people</string>
+    <string name="search_conversations">Conversations</string>
+    <string name="search_messages">Messages</string>
+    <string name="search_min_chars">Type at least 2 characters</string>
+    <string name="search_no_results">No results</string>
+    <string name="clear_search">Clear search</string>
+    <plurals name="selected_count">
+        <item quantity="one">%1$d selected</item>
+        <item quantity="other">%1$d selected</item>
+    </plurals>
+    <string name="close_selection">Close selection</string>
+    <string name="pin">Pin</string>
+    <string name="unpin">Unpin</string>
+    <string name="select_all">Select all</string>
+    <string name="mark_read_action">Mark as read</string>
+    <string name="archive">Archive</string>
+    <string name="unarchive">Unarchive</string>
+    <string name="block">Block</string>
+    <string name="unblock">Unblock</string>
+    <string name="archived">Archived</string>
+    <string name="blocked">Blocked</string>
+    <string name="archived_empty">No archived conversations</string>
+    <string name="blocked_empty">No blocked senders</string>
+    <plurals name="delete_conversations_title">
+        <item quantity="one">Delete %1$d conversation?</item>
+        <item quantity="other">Delete %1$d conversations?</item>
+    </plurals>
+    <string name="block_title">Block %1$s?</string>
+    <string name="block_body">Calls and messages from this sender are blocked on this phone. Messages that still arrive are kept silently and hidden here.</string>
+    <plurals name="block_many_title">
+        <item quantity="one">Block %1$d sender?</item>
+        <item quantity="other">Block %1$d senders?</item>
+    </plurals>
+    <string name="folder_unread_header">%1$d %2$s unread messages</string>
+    <string name="settings">Settings</string>
+    <string name="add">Add</string>
+    <string name="none">None</string>
+    <string name="unread_only">Unread only</string>
+    <string name="no_unread">No unread messages</string>
+    <string name="pinned">Pinned</string>
+    <string name="star">Star</string>
+    <string name="unstar">Remove star</string>
+    <string name="starred">Starred</string>
+    <string name="load_more_starred">Load more (%1$d of %2$d)</string>
+    <string name="delete_message_body">It is removed from this phone. This can\'t be undone.</string>
+    <string name="select_message">Select message</string>
+    <string name="ok">OK</string>
+    <string name="move">Move</string>
+    <string name="share_sms">Share SMS</string>
+    <string name="forward_sms">Forward SMS</string>
+    <string name="view_message_details">View message details</string>
+    <string name="message_details">Message details</string>
+    <string name="move_future_sms">Move future SMS</string>
+    <string name="detail_from">From:</string>
+    <string name="detail_to">To:</string>
+    <string name="detail_received">Received:</string>
+    <string name="detail_sent">Sent:</string>
+    <string name="reminder_added">Reminder added</string>
+    <plurals name="move_messages_title">
+        <item quantity="one">Move this message to</item>
+        <item quantity="other">Move %1$d messages to</item>
+    </plurals>
+    <plurals name="delete_messages_title">
+        <item quantity="one">Delete this message?</item>
+        <item quantity="other">Delete %1$d messages?</item>
+    </plurals>
+    <string name="mute_sender">Mute sender</string>
+    <string name="unmute_sender">Unmute sender</string>
+    <string name="block_sender">Block sender</string>
+    <string name="swipe_delete">Delete</string>
+    <string name="swipe_mark_read">Mark read</string>
+    <string name="me">Me</string>
+
+    <!-- Finance (milestone 6) -->
+    <string name="finance_disclaimer">Balance from SMS, actual may vary</string>
+    <string name="show_balance">Show balance</string>
+    <string name="accounts">Accounts</string>
+    <string name="recently_updated">Recently updated</string>
+    <string name="avbl_bal_on">Avbl bal on %1$s</string>
+    <string name="finance_empty">No bank balances found yet. Balances appear here when your bank sends an SMS with the available balance.</string>
+    <string name="finance_unlock_title">Show balances</string>
+    <string name="finance_unlock_subtitle">Confirm it\'s you</string>
+    <string name="finance_no_lock">Balances stay hidden until this phone has a screen lock (PIN, pattern, password) or fingerprint. You can also turn off "Enable security for Finance" in Settings.</string>
+    <string name="finance_lock_needed_title">Screen lock needed</string>
+    <string name="set_up">Set up</string>
+    <string name="transactions_from_sms">Transactions from SMS</string>
+    <string name="no_transactions">No transactions found for this account</string>
+    <string name="credited">Credited</string>
+    <string name="debited">Debited</string>
+    <string name="refresh_cards">Refresh cards</string>
+
+    <!-- Reminders & orders (milestone 7) -->
+    <string name="reminder_due">Reminder</string>
+    <string name="reminders_caption">From your SMS. Actual details may vary.</string>
+    <string name="reminders_setting_up">Your reminders are being set up</string>
+    <string name="reminders_setting_up_body">Bills, movies, bus and flight bookings from your SMS show up here as reminders.</string>
+    <string name="no_upcoming">You have no upcoming reminders.</string>
+    <string name="past_reminders">Past reminders</string>
+    <string name="past_orders">Past orders</string>
+    <string name="add_reminder">Add reminder</string>
+    <string name="show_past_reminders">Show past reminders</string>
+    <string name="show_past_orders">Show past orders</string>
+    <string name="privacy_footer">Your SMS stay on this phone. Reminders are made on the device and are not shared.</string>
+    <string name="upcoming">Upcoming</string>
+    <string name="active_orders">Orders</string>
+    <string name="dismiss">Dismiss</string>
+    <string name="orders_banner">Order statuses come from SMS and may not be the latest.</string>
+    <string name="order_details">Order details</string>
+    <string name="delivery_details">Delivery details</string>
+    <string name="track">Track</string>
+    <string name="last_updated_on">Last updated on %1$s</string>
+    <string name="arriving_on">Arriving %1$s</string>
+    <string name="open_link_title">Open this link?</string>
+    <string name="open_link_body">This opens in your browser. Check that the address is what you expect:\n\n%1$s</string>
+    <string name="open">Open</string>
+    <string name="link_real_host">Goes to: %1$s</string>
+    <string name="link_lookalike_warning">Warning: this address uses look-alike characters and may imitate another site.</string>
+    <string name="no_past_reminders">No past reminders</string>
+    <string name="no_orders">No orders found in your SMS yet</string>
+    <string name="reminder_title_hint">What should we remind you about?</string>
+    <string name="save">Save</string>
+    <string name="status_placed">Order placed</string>
+    <string name="status_dispatched">Dispatched</string>
+    <string name="status_out_for_delivery">Out for delivery</string>
+    <string name="status_arriving">Arriving</string>
+    <string name="status_delivered_order">Delivered</string>
+    <string name="status_cancelled">Cancelled</string>
+
+    <!-- Settings (milestone 8) -->
+    <string name="app_status">App status</string>
+    <string name="default_sms_app">Default SMS app</string>
+    <string name="not_default">Not default</string>
+    <string name="general">General</string>
+    <string name="backup_restore">Backup &amp; restore</string>
+    <string name="message_rules">Message rules</string>
+    <string name="notifications">Notifications</string>
+    <string name="phone_number">Phone number (SIM 1)</string>
+    <string name="phone_number_hint">Your number (optional; used for group messages in a future update)</string>
+    <string name="unknown_value">Unknown</string>
+    <string name="swipe_actions">Swipe actions</string>
+    <string name="finance_security">Enable security for Finance</string>
+    <string name="show_quick_replies">Show quick replies</string>
+    <string name="about">About</string>
+    <string name="signature">Signature</string>
+    <string name="signature_hint">Enter a message signature</string>
+    <string name="launch_folder">Default message folder on launch</string>
+    <string name="last_received">Last received</string>
+    <string name="font_size">Font size</string>
+    <string name="small">Small</string>
+    <string name="normal">Normal</string>
+    <string name="large">Large</string>
+    <string name="use_24h">Use 24 hours format</string>
+    <string name="rules_note">Off by default. When on, older messages of that kind are deleted from this phone once a day. Starred messages and saved contacts are never deleted.</string>
+    <string name="rule_otp">Delete older OTP messages</string>
+    <string name="rule_promo">Delete older promotional messages</string>
+    <string name="rule_blocked">Delete older blocked messages</string>
+    <string name="delete_after">Delete after</string>
+    <string name="never">Never</string>
+    <string name="one_day">1 day</string>
+    <string name="three_days">3 days</string>
+    <string name="one_week">1 week</string>
+    <string name="one_month">1 month</string>
+    <string name="notify_default">Show default notifications</string>
+    <string name="notify_promo">Show promotional SMS notifications</string>
+    <string name="notify_otp">Show OTP SMS notifications</string>
+    <string name="otp_delete_after_copy">Delete OTP after copying</string>
+    <string name="otp_delete_after_copy_desc">When you tap Copy on an OTP notification</string>
+    <string name="notify_reminders">Show reminder notifications</string>
+    <string name="system_notification_settings">Notification settings</string>
+    <string name="change_tabs_on_swipe">Change tabs on swipe</string>
+    <string name="change_tabs_on_swipe_desc">Turn off to use message swipe actions</string>
+    <string name="left_swipe">Left swipe</string>
+    <string name="right_swipe">Right swipe</string>
+    <string name="version">Version %1$s</string>
+    <string name="about_identity">No account and no phone-number identity: the app works without signing in.</string>
+    <string name="about_data">Your messages stay on this device. They are only copied off it if you turn on Google Drive backup, and then only encrypted with your backup password.</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="on">On</string>
+    <string name="off">Off</string>
+    <string name="battery_optimisation">Battery optimisation</string>
+    <string name="battery_unrestricted">Not optimised</string>
+    <string name="battery_optimised">Optimised</string>
+    <string name="battery_desc">Some phones (Xiaomi, Oppo, Vivo, Realme, Samsung) delay or drop notifications for optimised apps. Set this app to Not optimised if messages arrive late.</string>
+    <string name="backup_desc">Back up your SMS to your own Google Drive. The backup is encrypted with a key that is protected by your phone\'s screen lock and saved with your phone\'s Google backup, so even Google can\'t read it. To restore on a new phone, set it up from your old phone\'s Google backup and use the same Google account.</string>
+    <string name="backup_needs_lock">Backups need a screen lock and Google backup turned on in Android settings.</string>
+    <string name="back_up">Back up</string>
+    <string name="restore">Restore</string>
+    <string name="restoring">Restoring…</string>
+    <string name="backing_up">Backing up…</string>
+    <string name="drive_account">Google Drive account</string>
+    <string name="drive_choose_account">Tap to choose a Google account on this phone</string>
+    <string name="auto_backup">Auto backup</string>
+    <string name="delete_drive_backup">Delete backup from Google Drive</string>
+    <string name="delete_drive_backup_desc">Removes the backup file from your Drive</string>
+    <string name="delete_drive_backup_body">The backup in your Google Drive is deleted and can\'t be restored. Messages on this phone are not affected.</string>
+    <string name="manual">Manual</string>
+    <string name="daily">Daily</string>
+    <string name="weekly">Weekly</string>
+    <string name="monthly">Monthly</string>
+    <string name="last_backup">Last backup: %1$s · %2$s</string>
+    <string name="last_backup_failed">The last automatic backup failed. Tap Back up to try again.</string>
+
+    <!-- Composer & New message (post-M9) -->
+    <string name="to_label">To</string>
+    <string name="recipient_hint">Type name or number</string>
+    <string name="send_to_number">Send to %1$s</string>
+    <string name="allow_contacts_search">Allow contacts to search by name</string>
+    <string name="no_contact_match">No matching contacts</string>
+
+    <!-- Scheduled messages (FEAT-1) -->
+    <string name="schedule_message">Schedule message</string>
+    <string name="scheduled_for">Scheduled for %1$s</string>
+    <string name="scheduled">Scheduled</string>
+    <string name="scheduled_empty">No scheduled messages</string>
+    <string name="scheduled_done">Message scheduled for %1$s</string>
+    <string name="schedule_past">That time has passed. Pick a later time.</string>
+    <string name="schedule_time_passed">The scheduled time has passed. Tap the time to pick a new one. Nothing was sent.</string>
+    <string name="send_now">Send now</string>
+    <string name="change_time">Change time</string>
+    <string name="edit_text">Edit text</string>
+    <string name="cancel_schedule">Cancel scheduled message</string>
+    <string name="clear_schedule">Clear scheduled time</string>
+    <string name="schedule_button">Schedule</string>
+    <string name="scheduled_failed_title">Scheduled message not sent</string>
+    <string name="scheduled_failed_not_default">Set SMS as your default SMS app, then open Scheduled to send it.</string>
+    <string name="scheduled_failed_send">It couldn\'t be sent. Open Scheduled to retry.</string>
+    <string name="scheduled_failed_short">Not sent</string>
+    <string name="exact_timing_title">Send on time?</string>
+    <string name="exact_timing_body">To send scheduled messages at the exact minute, allow "Alarms &amp; reminders" for this app. Without it, they may go out a few minutes late.</string>
+    <string name="allow">Allow</string>
+
+    <!-- MMS is a planned milestone -->
+    <string name="mms_unsupported_title">MMS not received</string>
+    <string name="mms_unsupported_body">Someone sent you an MMS (picture or group message). This app can\'t receive MMS yet.</string>
+
+    <!-- Notifications -->
+    <string name="channel_messages">Messages</string>
+    <string name="channel_otp">One-time codes</string>
+    <string name="channel_otp_desc">Verification codes. Hidden on the lock screen.</string>
+    <string name="channel_reminders">Reminders</string>
+    <string name="otp_received">One-time code received</string>
+    <string name="code_copied">Code copied</string>
+    <string name="otp_clip_label">One-time code</string>
+    <string name="copy_otp">Copy OTP</string>
+    <string name="otp_from">OTP from %1$s</string>
+    <string name="copy">Copy</string>
+    <string name="pin_chat">Pin chat</string>
+    <string name="unpin_chat">Unpin chat</string>
+    <string name="new_message">New message</string>
+    <string name="reply">Reply</string>
+    <string name="mark_read">Mark read</string>
+    <string name="you">You</string>
+    <string name="photo">Photo</string>
+
+    <!-- Quick replies: fill the text box, never sent automatically. -->
+    <string-array name="quick_replies">
+        <item>Please call me later</item>
+        <item>In a meeting, will call back</item>
+        <item>On my way</item>
+        <item>Thank you</item>
+        <item>Can\'t talk now, text me</item>
+        <item>Running late</item>
+    </string-array>
+    <plurals name="bank_accounts">
+        <item quantity="one">%d account</item>
+        <item quantity="other">%d accounts</item>
+    </plurals>
+    <!-- 2026-11-21: everyday SMS features -->
+    <string name="mark_all_read">Mark all as read</string>
+    <string name="mute">Mute notifications</string>
+    <string name="unmute">Unmute notifications</string>
+    <string name="muted">Muted</string>
+    <string name="draft_label">Draft:</string>
+    <string name="choose_sim">Choose SIM</string>
+    <string name="no_sims">No active SIM found.</string>
+    <string name="copy_text">Copy text</string>
+    <string name="share">Share</string>
+    <string name="copied">Copied</string>
+    <string name="message_clip_label">Message</string>
+    <plurals name="sms_count_a11y">
+        <item quantity="one">%1$d characters left, %2$d SMS</item>
+        <item quantity="other">%1$d characters left, %2$d SMS</item>
+    </plurals>
+    <string name="edit_quick_replies">Quick replies</string>
+    <string name="add_quick_reply">Add quick reply</string>
+    <string name="edit_quick_reply">Edit quick reply</string>
+    <string name="delete_quick_reply">Delete \u201c%1$s\u201d</string>
+    <string name="reset_quick_replies">Reset to defaults</string>
+    <string name="quick_reply_hint">Reply text</string>
+    <string name="privacy_policy">Privacy policy</string>
+    <string name="privacy_policy_url" translatable="false">https://pratish974.github.io/SMS/privacy-policy.html</string>
+    <string name="share_crash_log">Share crash log</string>
+    <string name="clear_crash_log">Clear crash log</string>
+    <string name="crash_log_subject">SMS app %1$s crash log</string>
+    <string name="select_conversation">Select a conversation</string>
+
+    <!-- Link risk, scam warnings and sensitive-data checks -->
+    <string name="risk_title_safe">Looks like an official website</string>
+    <string name="risk_title_unknown">Unknown website</string>
+    <string name="risk_title_suspicious">Suspicious link</string>
+    <string name="risk_title_dangerous">Likely a scam link</string>
+    <string name="risk_brand_impersonation">The address uses the name of a bank or service but is not its real website.</string>
+    <string name="risk_sender_domain_mismatch">The sender looks official, but the link goes to a different website.</string>
+    <string name="risk_shortener">Shortened link: the real destination is hidden.</string>
+    <string name="risk_risky_tld">The address ends with an extension often used in scams.</string>
+    <string name="risk_ip_or_port">The link points to a numeric address or an unusual port.</string>
+    <string name="risk_userinfo_trick">The address hides the real website behind an \"@\" trick.</string>
+    <string name="risk_lookalike">The address uses look-alike characters.</string>
+    <string name="risk_hidden_chars">The link contains hidden characters.</string>
+    <string name="risk_not_https">The link is not encrypted (http).</string>
+    <string name="risk_unusual_shape">The address is unusually long or has many parts.</string>
+    <string name="risk_scam_wording">The message uses pressure or reward wording typical of scams.</string>
+    <string name="risk_unverified_sender">A regular phone number is talking about bank matters.</string>
+    <string name="open_anyway">Open anyway</string>
+    <string name="open_anyway_again">Tap again to open</string>
+    <string name="scam_link_warning">Possible scam: don\'t open links or share codes</string>
+    <string name="scam_otp_warning">Never share this code. Your bank will never ask for it.</string>
+    <string name="notif_scam_prefix">\u26A0 Possible scam \u00B7 </string>
+    <string name="notif_link_hidden">[link hidden]</string>
+    <string name="sensitive_title">Sharing sensitive information?</string>
+    <string name="sensitive_body">This message seems to contain: %1$s.\n\nBanks and companies never ask for OTPs, card numbers, CVV, UPI PIN or Aadhaar by SMS.</string>
+    <string name="send_anyway">Send anyway</string>
+    <string name="sensitive_otp">a one-time code</string>
+    <string name="sensitive_card">a card number</string>
+    <string name="sensitive_cvv">a CVV</string>
+    <string name="sensitive_aadhaar">an Aadhaar number</string>
+    <string name="sensitive_pan">a PAN</string>
+    <string name="sensitive_upi_pin">a UPI PIN</string>
+    <string name="share_otp_title">Share a one-time code?</string>
+    <string name="share_otp_body">This message has a one-time code. Never share it with anyone, even if they say they\'re from your bank.</string>
+    <string name="continue_action">Continue</string>
+    <string name="short_code_note">Short code \u00B7 may be charged</string>
+    <string name="filled_by_app_note">Filled in by another app. Check before sending.</string>
+</resources>

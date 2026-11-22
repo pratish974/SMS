@@ -1,0 +1,26 @@
+# Shared build setup for every workflow (S17): official Temurin JDKs from setup-java, Gradle may NOT
+# download JDKs itself, Gradle caching, and wrapper JAR validation.
+name: Setup build
+description: JDK 21 (compile) + JDK 27 (Gradle daemon) and Gradle
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-java@v6
+      with:
+        distribution: temurin
+        java-version: |
+          21
+          27
+        check-latest: true # newest security patch (e.g. Java4Shell fixes)
+    - name: Point Gradle at the installed JDKs only
+      shell: bash
+      run: |
+        mkdir -p ~/.gradle
+        {
+          echo "org.gradle.java.installations.auto-download=false"
+          echo "org.gradle.java.installations.fromEnv=JAVA_HOME_21_X64,JAVA_HOME_27_X64"
+        } >> ~/.gradle/gradle.properties
+    # Gradle version comes from gradle/wrapper/gradle-wrapper.properties (9.9.1, checksum-pinned).
+    - uses: gradle/actions/setup-gradle@v6
+      with:
+        validate-wrappers: true # wrapper JAR must match Gradle's official checksums

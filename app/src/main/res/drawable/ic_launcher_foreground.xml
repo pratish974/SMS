@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Original app icon (drawn for this app from basic shapes, 2026-11-21): an outlined pill-shaped
+  speech bubble with a tail at the bottom right and three centered text lines. Everything stays
+  inside the 66 dp adaptive-icon safe circle. Also used as the monochrome (themed) icon and splash icon.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="108dp" android:height="108dp"
+        android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Bubble outline + tail -->
+    <path android:fillColor="#00000000"
+          android:strokeColor="#FFFFFFFF"
+          android:strokeWidth="4"
+          android:strokeLineJoin="round"
+          android:strokeLineCap="round"
+          android:pathData="M45,32 H63 A19,19 0 0 1 63,70 H62 L67.5,81 Q60,77 54,70 H45 A19,19 0 0 1 45,32 Z"/>
+    <!-- Text lines -->
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF"
+          android:strokeWidth="3.2" android:strokeLineCap="round"
+          android:pathData="M43,44.5 H65"/>
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF"
+          android:strokeWidth="3.2" android:strokeLineCap="round"
+          android:pathData="M39,51 H69"/>
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF"
+          android:strokeWidth="3.2" android:strokeLineCap="round"
+          android:pathData="M46,57.5 H62"/>
+</vector>

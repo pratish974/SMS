@@ -1,0 +1,99 @@
+# Release APK on every push to master.
+#
+# Builds a release (R8-shrunk) APK + Play bundle from the pushed commit, runs the unit tests first,
+# and publishes them two ways:
+#   1. As a workflow artifact (Actions tab -> this run -> Artifacts), kept 30 days.
+#   2. As a rolling GitHub pre-release "master-latest" that always holds the newest master build,
+#      so testers have one fixed download link.
+# Version tags (vX.Y.Z) still go through release.yml for the real, numbered releases.
+#
+# Signing: uses the same repository secrets as release.yml:
+#   SMS_KEYSTORE_BASE64, SMS_KEYSTORE_PASSWORD, SMS_KEY_ALIAS, SMS_KEY_PASSWORD
+# Without them the APK is built UNSIGNED (it then can't be installed; add the secrets).
+name: Master APK
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: write # to update the "master-latest" pre-release
+
+# A newer push to master replaces a build that is still running.
+concurrency:
+  group: master-apk
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-build
+
+      - name: Read version
+        id: version
+        run: |
+          out=$(./gradlew -q :app:printVersion)
+          name=$(echo "$out" | sed -n 's/^versionName=//p')
+          code=$(echo "$out" | sed -n 's/^versionCode=//p')
+          short=$(git rev-parse --short HEAD)
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "file=sms-$name-master-$short" >> "$GITHUB_OUTPUT"
+
+      - name: Decode signing key
+        id: signing
+        env:
+          KEYSTORE_B64: ${{ secrets.SMS_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+            echo "SMS_KEYSTORE_FILE=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
+            echo "signed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::No signing secrets: building an UNSIGNED release APK (not installable)."
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Test and build release APK + bundle
+        env:
+          SMS_KEYSTORE_PASSWORD: ${{ secrets.SMS_KEYSTORE_PASSWORD }}
+          SMS_KEY_ALIAS: ${{ secrets.SMS_KEY_ALIAS }}
+          SMS_KEY_PASSWORD: ${{ secrets.SMS_KEY_PASSWORD }}
+        run: ./gradlew --stacktrace :app:testDebugUnitTest :app:checkReleaseSize :app:assembleRelease :app:bundleRelease
+
+      - name: Collect files
+        run: |
+          mkdir -p dist
+          suffix=$([ "${{ steps.signing.outputs.signed }}" = true ] && echo "" || echo "-unsigned")
+          base="${{ steps.version.outputs.file }}$suffix"
+          cp "$(ls app/build/outputs/apk/release/*.apk | head -1)" "dist/$base.apk"
+          cp app/build/outputs/bundle/release/*.aab "dist/$base.aab"
+          # R8 mapping: needed to read crash stack traces from this build.
+          cp app/build/outputs/mapping/release/mapping.txt "dist/mapping-$base.txt"
+          (cd dist && sha256sum * > SHA256SUMS.txt)
+          rm -f "$RUNNER_TEMP/upload.jks"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: ${{ steps.version.outputs.file }}
+          path: dist/*
+          retention-days: 30
+
+      - name: Replace files on the "master-latest" pre-release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Move the tag to this commit and drop the previous build's files.
+          git tag -f master-latest
+          git push -f origin master-latest
+          gh release delete master-latest --yes 2>/dev/null || true
+          gh release create master-latest dist/* \
+            --prerelease \
+            --target "$GITHUB_SHA" \
+            --title "Latest master build: ${{ steps.version.outputs.name }} (${GITHUB_SHA::7})" \
+            --notes "Automatic build of master at ${GITHUB_SHA::7}. For testing; Play uploads use the numbered vX.Y.Z releases."
