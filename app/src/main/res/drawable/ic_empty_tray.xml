@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Original empty-state art: an open, empty letter tray on a soft blob. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="160dp" android:height="140dp"
+        android:viewportWidth="160" android:viewportHeight="140">
+    <path android:fillColor="#FF1F1D1A"
+          android:pathData="M28,70c0,-34 24,-56 58,-56s48,22 48,52 -18,60 -56,60S28,104 28,70z"/>
+    <path android:fillColor="#FF4A6B4F"
+          android:pathData="M48,62h64l-6,40H54z"/>
+    <path android:fillColor="#FF3B5640"
+          android:pathData="M54,102h52l-2,8H56z"/>
+    <path android:fillColor="#FF6E8F73"
+          android:pathData="M44,58h72v6H44z"/>
+    <path android:fillColor="#FF8A8A8A"
+          android:pathData="M64,40h32v18H64z"/>
+    <path android:fillColor="#FF5C5C5C"
+          android:pathData="M64,40l16,10 16,-10v3l-16,10 -16,-10z"/>
+</vector>

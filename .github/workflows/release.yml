@@ -1,0 +1,93 @@
+# Release pipeline: builds the Play bundle (AAB) and APK for a version tag vMAJOR.MINOR.PATCH and
+# publishes them as a GitHub Release. Started by pushing a tag, or by the "Bump version" workflow.
+#
+# Signing (S1): add these repository secrets (Settings -> Secrets and variables -> Actions):
+#   SMS_KEYSTORE_BASE64   base64 of your upload keystore (base64 -i upload.jks | pbcopy)
+#   SMS_KEYSTORE_PASSWORD, SMS_KEY_ALIAS, SMS_KEY_PASSWORD
+# Without them the release is built UNSIGNED (fine for testing, not for Play).
+name: Release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        required: true
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to (re)build, e.g. v1.2.0
+        type: string
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+      - uses: ./.github/actions/setup-build
+
+      - name: Check tag matches version.properties
+        id: version
+        run: |
+          name=$(./gradlew -q :app:printVersion | sed -n 's/^versionName=//p')
+          code=$(./gradlew -q :app:printVersion | sed -n 's/^versionCode=//p')
+          if [ "v$name" != "$TAG" ]; then
+            echo "::error::Tag $TAG does not match version.properties ($name). Use the Bump version workflow."
+            exit 1
+          fi
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+
+      - name: Decode signing key
+        id: signing
+        env:
+          KEYSTORE_B64: ${{ secrets.SMS_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+            echo "SMS_KEYSTORE_FILE=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
+            echo "signed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::No signing secrets: building an UNSIGNED release."
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Test and build release
+        env:
+          SMS_KEYSTORE_PASSWORD: ${{ secrets.SMS_KEYSTORE_PASSWORD }}
+          SMS_KEY_ALIAS: ${{ secrets.SMS_KEY_ALIAS }}
+          SMS_KEY_PASSWORD: ${{ secrets.SMS_KEY_PASSWORD }}
+        run: ./gradlew --stacktrace :app:testDebugUnitTest :app:checkReleaseSize :app:assembleRelease :app:bundleRelease
+
+      - name: Collect files
+        run: |
+          mkdir -p dist
+          suffix=$([ "${{ steps.signing.outputs.signed }}" = true ] && echo "" || echo "-unsigned")
+          cp app/build/outputs/bundle/release/*.aab "dist/sms-${{ steps.version.outputs.name }}$suffix.aab"
+          cp "$(ls app/build/outputs/apk/release/*.apk | head -1)" "dist/sms-${{ steps.version.outputs.name }}$suffix.apk"
+          # R8 mapping: needed to read crash stack traces; also upload it to Play Console.
+          cp app/build/outputs/mapping/release/mapping.txt "dist/mapping-${{ steps.version.outputs.name }}.txt"
+          (cd dist && sha256sum * > SHA256SUMS.txt)
+          rm -f "$RUNNER_TEMP/upload.jks"
+
+      - uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ env.TAG }}
+          name: SMS ${{ steps.version.outputs.name }} (versionCode ${{ steps.version.outputs.code }})
+          generate_release_notes: true
+          prerelease: ${{ steps.signing.outputs.signed != 'true' }}
+          files: dist/*

@@ -1,0 +1,58 @@
+# Versioning: Actions -> "Bump version" -> Run workflow -> choose patch / minor / major.
+# Updates version.properties, commits, tags vX.Y.Z on the chosen branch, then runs the Release pipeline.
+name: Bump version
+
+on:
+  workflow_dispatch:
+    inputs:
+      part:
+        description: Which part to increase
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bump-version
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.bump.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Bump
+        id: bump
+        env:
+          PART: ${{ inputs.part }}
+        run: |
+          current=$(sed -n 's/^versionName=//p' version.properties)
+          IFS=. read -r major minor patch <<< "$current"
+          case "$PART" in
+            major) major=$((major + 1)); minor=0; patch=0 ;;
+            minor) minor=$((minor + 1)); patch=0 ;;
+            patch) patch=$((patch + 1)) ;;
+          esac
+          next="$major.$minor.$patch"
+          if git rev-parse -q --verify "refs/tags/v$next" >/dev/null; then
+            echo "::error::Tag v$next already exists"; exit 1
+          fi
+          sed -i "s/^versionName=.*/versionName=$next/" version.properties
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Release $next"
+          git tag -a "v$next" -m "Release $next"
+          git push origin HEAD "v$next"
+          echo "tag=v$next" >> "$GITHUB_OUTPUT"
+          echo "### Version $current -> $next" >> "$GITHUB_STEP_SUMMARY"
+
+  # Tags pushed with the workflow token don't start other workflows, so call Release directly.
+  release:
+    needs: bump
+    uses: ./.github/workflows/release.yml
+    with:
+      tag: ${{ needs.bump.outputs.tag }}
+    secrets: inherit
