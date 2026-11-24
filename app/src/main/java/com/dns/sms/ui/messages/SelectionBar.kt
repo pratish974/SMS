@@ -42,6 +42,7 @@ import com.dns.sms.ui.labelRes
 @Composable
 fun SelectionBar(vm: ConversationListViewModel, folder: Folder) {
     val ctx = LocalContext.current
+    val res = androidx.compose.ui.platform.LocalResources.current
     val selection by vm.selection.collectAsStateWithLifecycle()
     val state by vm.state.collectAsStateWithLifecycle()
     var menu by remember { mutableStateOf(false) }
@@ -99,7 +100,7 @@ fun SelectionBar(vm: ConversationListViewModel, folder: Folder) {
             onPick = { c ->
                 moving = false
                 vm.act { vm.move(threads, c) }
-                c?.let { Toast.makeText(ctx, ctx.getString(R.string.moved_to, ctx.getString(it.labelRes())), Toast.LENGTH_SHORT).show() }
+                c?.let { Toast.makeText(ctx, res.getString(R.string.moved_to, res.getString(it.labelRes())), Toast.LENGTH_SHORT).show() }
             },
             onDismiss = { moving = false },
         )

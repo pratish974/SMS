@@ -113,6 +113,7 @@ import java.time.ZoneId
 @Composable
 fun ConversationScreen(onBack: () -> Unit, onForward: (String) -> Unit = {}, vm: ConversationViewModel = hiltViewModel()) {
     val ctx = LocalContext.current
+    val res = androidx.compose.ui.platform.LocalResources.current
     val thread by vm.thread.collectAsStateWithLifecycle()
     val messages by vm.messages.collectAsStateWithLifecycle()
     val draft by vm.draft.collectAsStateWithLifecycle()
@@ -131,7 +132,7 @@ fun ConversationScreen(onBack: () -> Unit, onForward: (String) -> Unit = {}, vm:
     var askExactTiming by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         vm.scheduleNotice.receiveAsFlow().collect { at ->
-            Toast.makeText(ctx, ctx.getString(R.string.scheduled_done, scheduleLabel(ctx, at)), Toast.LENGTH_SHORT).show()
+            Toast.makeText(ctx, res.getString(R.string.scheduled_done, scheduleLabel(ctx, at)), Toast.LENGTH_SHORT).show()
             if (!vm.canSendOnTime()) askExactTiming = true
         }
     }
@@ -172,7 +173,7 @@ fun ConversationScreen(onBack: () -> Unit, onForward: (String) -> Unit = {}, vm:
             MessageSelection.MenuItem.SHARE -> guardOtp {
                 val send = Intent(Intent.ACTION_SEND).setType("text/plain").putExtra(Intent.EXTRA_TEXT, selectedText())
                 clearSelection()
-                try { ctx.startActivity(Intent.createChooser(send, ctx.getString(R.string.share))) } catch (_: ActivityNotFoundException) { }
+                try { ctx.startActivity(Intent.createChooser(send, res.getString(R.string.share))) } catch (_: ActivityNotFoundException) { }
             }
             MessageSelection.MenuItem.MOVE -> movingMessages = ms
             MessageSelection.MenuItem.ADD_REMINDER -> {
@@ -189,7 +190,7 @@ fun ConversationScreen(onBack: () -> Unit, onForward: (String) -> Unit = {}, vm:
         }
     }
     val toastMoved: (Category?) -> Unit = { c ->
-        c?.let { Toast.makeText(ctx, ctx.getString(R.string.moved_to, ctx.getString(it.labelRes())), Toast.LENGTH_SHORT).show() }
+        c?.let { Toast.makeText(ctx, res.getString(R.string.moved_to, res.getString(it.labelRes())), Toast.LENGTH_SHORT).show() }
     }
 
     LaunchedEffect(Unit) { vm.errors.collect { Toast.makeText(ctx, it, Toast.LENGTH_SHORT).show() } }
@@ -210,7 +211,7 @@ fun ConversationScreen(onBack: () -> Unit, onForward: (String) -> Unit = {}, vm:
                 onCopy = {
                     guardOtp {
                         ctx.getSystemService(android.content.ClipboardManager::class.java)
-                            .setPrimaryClip(android.content.ClipData.newPlainText(ctx.getString(R.string.message_clip_label), selectedText()))
+                            .setPrimaryClip(android.content.ClipData.newPlainText(res.getString(R.string.message_clip_label), selectedText()))
                         if (android.os.Build.VERSION.SDK_INT < 33) Toast.makeText(ctx, R.string.copied, Toast.LENGTH_SHORT).show()
                         clearSelection()
                     }
@@ -324,11 +325,10 @@ fun ConversationScreen(onBack: () -> Unit, onForward: (String) -> Unit = {}, vm:
                     if (sims.isEmpty()) Text(stringResource(R.string.no_sims))
                     sims.forEach { sim ->
                         ListItem(
-                            headlineContent = { Text(sim.label) },
                             leadingContent = { Icon(Icons.Filled.SimCard, null) },
                             colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
                             modifier = Modifier.clickable { pickingSim = false; vm.chooseSim(sim.subId) },
-                        )
+                        ) { Text(sim.label) }
                     }
                 }
             },

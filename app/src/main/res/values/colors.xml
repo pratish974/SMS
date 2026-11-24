@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="black">#FF000000</color>
+    <!-- Notification extras (OTP / transaction): readable on both light and dark shades. -->
+    <color name="notif_action">#FF4A8FE7</color>
+    <color name="notif_debit">#FFE53935</color>
+    <color name="notif_credit">#FF2EA043</color>
 </resources>

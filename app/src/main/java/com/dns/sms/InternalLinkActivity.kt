@@ -19,6 +19,7 @@ class InternalLinkActivity : Activity() {
             ACTION_VIEW_THREAD -> intent.getLongExtra(EXTRA_THREAD_ID, -1).takeIf { it > 0 }?.let { NavRequest.Thread(it) }
             ACTION_VIEW_REMINDERS -> NavRequest.Reminders
             ACTION_VIEW_SCHEDULED -> NavRequest.Scheduled
+            ACTION_VIEW_FINANCE -> NavRequest.Finance
             else -> null
         }
         request?.let(InternalNav::post)
@@ -30,6 +31,7 @@ class InternalLinkActivity : Activity() {
         const val ACTION_VIEW_THREAD = "com.dns.sms.VIEW_THREAD"
         const val ACTION_VIEW_REMINDERS = "com.dns.sms.VIEW_REMINDERS"
         const val ACTION_VIEW_SCHEDULED = "com.dns.sms.VIEW_SCHEDULED"
+        const val ACTION_VIEW_FINANCE = "com.dns.sms.VIEW_FINANCE"
         const val EXTRA_THREAD_ID = "thread_id"
     }
 }

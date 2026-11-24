@@ -39,6 +39,7 @@
             android:enableOnBackInvokedCallback="true"
             tools:targetApi="33"
             android:usesCleartextTraffic="false"
+            android:networkSecurityConfig="@xml/network_security_config"
             android:theme="@style/Theme.SMS">
 
         <!-- Internal links (notifications, shortcuts) only: other apps cannot start this activity. -->

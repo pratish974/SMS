@@ -75,11 +75,10 @@ fun MoveToSheet(
 @Composable
 private fun Option(label: String, supporting: String?, icon: ImageVector, selected: Boolean, onClick: () -> Unit) {
     ListItem(
-        headlineContent = { Text(label) },
         supportingContent = supporting?.let { { Text(it) } },
         leadingContent = { Icon(icon, contentDescription = null) },
         trailingContent = if (selected) ({ Icon(Icons.Filled.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary) }) else null,
         colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surface),
         modifier = Modifier.selectable(selected = selected, role = Role.RadioButton, onClick = onClick),
-    )
+    ) { Text(label) }
 }

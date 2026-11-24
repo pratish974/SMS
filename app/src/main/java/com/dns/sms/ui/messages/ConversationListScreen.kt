@@ -130,7 +130,7 @@ fun ConversationListScreen(
             SwipeAction.NONE -> Unit
         }
     }
-    val ctx = LocalContext.current
+    val res = androidx.compose.ui.platform.LocalResources.current
     LazyColumn(
         modifier.fillMaxSize().then(swipeTabs),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = bottomInset),
@@ -170,9 +170,9 @@ fun ConversationListScreen(
                     // TalkBack can't swipe rows, so the same actions are offered as custom actions.
                     modifier = m.semantics {
                         customActions = listOf(
-                            CustomAccessibilityAction(ctx.getString(R.string.mark_read_action)) { vm.markRead(listOf(t.id)); true },
-                            CustomAccessibilityAction(ctx.getString(R.string.archive)) { vm.archive(listOf(t.id), true); true },
-                            CustomAccessibilityAction(ctx.getString(R.string.delete)) { pendingDelete = t; true },
+                            CustomAccessibilityAction(res.getString(R.string.mark_read_action)) { vm.markRead(listOf(t.id)); true },
+                            CustomAccessibilityAction(res.getString(R.string.archive)) { vm.archive(listOf(t.id), true); true },
+                            CustomAccessibilityAction(res.getString(R.string.delete)) { pendingDelete = t; true },
                         )
                     },
                 )
@@ -248,7 +248,7 @@ fun swipeLabel(a: SwipeAction): Int = when (a) {
 
 @Composable
 private fun StarredList(vm: ConversationListViewModel, onOpenThread: (Long) -> Unit, modifier: Modifier, bottomInset: androidx.compose.ui.unit.Dp) {
-    val ctx = LocalContext.current
+    val me = stringResource(R.string.me)
     val starred by vm.starred.collectAsStateWithLifecycle()
     val starredCount by vm.starredCount.collectAsStateWithLifecycle()
     val list = starred
@@ -257,7 +257,7 @@ private fun StarredList(vm: ConversationListViewModel, onOpenThread: (Long) -> U
         list.isEmpty() -> EmptyState(stringResource(R.string.starred_empty), modifier)
         else -> LazyColumn(modifier.fillMaxSize(), contentPadding = androidx.compose.foundation.layout.PaddingValues(bottom = bottomInset)) {
             items(list, key = { it.key }, contentType = { "starred" }) { m ->
-                StarredRow(m, ctx.getString(R.string.me), onClick = { onOpenThread(m.threadId) }, onUnstar = { vm.unstar(m) })
+                StarredRow(m, me, onClick = { onOpenThread(m.threadId) }, onUnstar = { vm.unstar(m) })
                 HorizontalDivider(Modifier.padding(start = 76.dp), color = MaterialTheme.colorScheme.outlineVariant)
             }
             if (list.size < starredCount) item(key = "more") {
@@ -285,7 +285,7 @@ private fun StarredRow(m: Message, me: String, onClick: () -> Unit, onUnstar: ()
                 Text(Format.listDate(ctx, m.dateMillis), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Text(
-                previewText(m.body).ifEmpty { ctx.getString(R.string.photo) }, maxLines = 2, overflow = TextOverflow.Ellipsis,
+                previewText(m.body).ifEmpty { stringResource(R.string.photo) }, maxLines = 2, overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }

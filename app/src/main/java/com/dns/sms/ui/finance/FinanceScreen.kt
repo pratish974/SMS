@@ -66,6 +66,7 @@ val RecentDot = Color(0xFFE57373)
 fun FinanceScreen(onOpenAccount: (AccountGroups.Merged) -> Unit, modifier: Modifier = Modifier, vm: FinanceViewModel = hiltViewModel()) {
     SecureScreen()
     val ctx = LocalContext.current
+    val showBalance = stringResource(R.string.show_balance)
     val banks by vm.banks.collectAsStateWithLifecycle()
     val revealed by vm.revealed.collectAsStateWithLifecycle()
     var needsLock by remember { mutableStateOf(false) }
@@ -98,7 +99,7 @@ fun FinanceScreen(onOpenAccount: (AccountGroups.Merged) -> Unit, modifier: Modif
             )
             Switch(
                 checked = revealed, onCheckedChange = toggle,
-                modifier = Modifier.semantics { contentDescription = ctx.getString(R.string.show_balance) },
+                modifier = Modifier.semantics { contentDescription = showBalance },
             )
         }
         val list = banks
