@@ -24,7 +24,8 @@ val signingReady = signingStore != null && file(signingStore).exists()
 android {
     namespace = "com.dns.sms"
     compileSdk {
-        version = release(36) {
+        // 37.1: required by AndroidX core 1.19 / Compose 1.13 / Lifecycle 2.11 (compile-time only; targetSdk unchanged).
+        version = release(37) {
             minorApiLevel = 1
         }
     }
@@ -32,7 +33,7 @@ android {
     defaultConfig {
         applicationId = "com.dns.sms"
         minSdk = 30
-        targetSdk = 36
+        targetSdk = 37
         versionCode = appVersionCode
         versionName = appVersionName
 

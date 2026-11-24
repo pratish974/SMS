@@ -31,7 +31,12 @@ class SettingsViewModel @Inject constructor(
     val gate: DefaultSmsGate,
     private val backups: BackupManager,
     private val drive: DriveClient,
+    val sims: com.dns.sms.sms.SimCards,
 ) : ViewModel() {
+
+    // --- SIMs. Re-read on every visit (a SIM or eSIM can be added or removed while the app is open).
+    val simList = MutableStateFlow<List<com.dns.sms.sms.SimCards.Sim>>(emptyList())
+    fun refreshSims() { simList.value = sims.active() }
 
     fun rulesChanged() = MessageRulesWorker.schedule(ctx, settings)
     fun autoBackupChanged() = BackupWorker.schedule(ctx, settings)

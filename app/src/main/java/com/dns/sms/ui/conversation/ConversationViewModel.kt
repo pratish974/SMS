@@ -46,7 +46,7 @@ class ConversationViewModel @Inject constructor(
     private val notifier: MessageNotifier,
     private val mover: Mover,
     private val actions: ConversationActions,
-    settings: AppSettings,
+    private val settings: AppSettings,
     private val scheduledMessages: ScheduledMessages,
     scheduledDao: ScheduledDao,
     folders: Folders,
@@ -118,6 +118,7 @@ class ConversationViewModel @Inject constructor(
         if (!multiSim) return
         viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
             val sub = chosenSub.value ?: threadMetas.one(threadId)?.subId ?: repo.lastSubId(threadId)
+                ?: sims.preferredSubId(settings.defaultSubId.value)
             simLabel.value = sims.shortLabel(sub)
         }
     }

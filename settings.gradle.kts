@@ -15,6 +15,8 @@ plugins {
     // Lets Gradle download the JDK toolchain below (JDK 27's jlink can't build android-36 system modules).
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
+// Gradle still labels this API "incubating", but it is the standard Android project setup.
+@Suppress("UnstableApiUsage")
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -68,6 +70,27 @@ fun ResolutionStrategy.applySecurityFloors() = eachDependency {
 gradle.beforeProject {
     buildscript.configurations.configureEach { resolutionStrategy.applySecurityFloors() }
     configurations.configureEach { resolutionStrategy.applySecurityFloors() }
+    // The two lines above miss "detached" configurations that AGP creates on the fly (lint, signing,
+    // test platform), which still downloaded Guava 33.3.1 and Bouncy Castle 1.79. A metadata rule
+    // rewrites the dependency edges of every component, so it applies to every resolution.
+    dependencies.components.all { applySecurityFloors() }
+    buildscript.dependencies.components.all { applySecurityFloors() }
+}
+
+/** Raises a library's dependencies on floored libraries, wherever that library is resolved. */
+fun ComponentMetadataDetails.applySecurityFloors() = allVariants {
+    withDependencies {
+        forEach { dep ->
+            val floor = securityFloors["${dep.group}:${dep.name}"]
+                ?: securityFloors["${dep.group}:*"].takeIf { !dep.name.startsWith("netty-tcnative") }
+                ?: return@forEach
+            val current = dep.versionConstraint.requiredVersion.ifEmpty { dep.versionConstraint.preferredVersion }
+            if (current.isNotEmpty() && versionLess(current, floor)) {
+                dep.version { require(floor) }
+                dep.because("security floor: $current has known advisories")
+            }
+        }
+    }
 }
 
 rootProject.name = "SMS"

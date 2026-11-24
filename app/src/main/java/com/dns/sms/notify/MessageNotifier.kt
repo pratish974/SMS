@@ -11,6 +11,14 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.Person
 import androidx.core.app.RemoteInput
+import android.graphics.Typeface
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
+import android.widget.RemoteViews
+import com.dns.sms.parse.Money
+import com.dns.sms.parse.TransactionAlert
 import com.dns.sms.InternalLinkActivity
 import com.dns.sms.security.UrlRisk
 import com.dns.sms.R
@@ -59,10 +67,12 @@ class MessageNotifier @Inject constructor(
         val latest = incoming.lastOrNull() ?: return
 
         val otp = OtpDetector.extract(latest.body)
+        val txn = if (otp == null) TransactionAlert.from(latest.address.orEmpty(), latest.body) else null
         when {
             otp != null -> if (settings.notifyOtp.value) postOtp(thread, latest, otp) else cancel(threadId)
             category(thread) == Category.PROMOTIONS && !settings.notifyPromotional.value -> cancel(threadId)
             !settings.notifyDefault.value -> cancel(threadId)
+            txn != null -> postTransaction(thread, latest, txn)
             else -> postConversation(thread, incoming)
         }
     }
@@ -101,36 +111,98 @@ class MessageNotifier @Inject constructor(
     }
 
     /**
-     * Compact OTP notification (reference look): the code as the title, "OTP from <sender>" below,
-     * Copy and Delete actions. Content stays hidden on the lock screen (public version).
+     * OTP notification (reference 2026-11-19): the code large, "OTP from <sender>" below, and Copy / Delete
+     * buttons right in the notification, so the code can be copied without expanding it. Content stays
+     * hidden on the lock screen (public version).
      */
     private fun postOtp(thread: ConversationThread, m: Message, code: String) {
-        fun messageAction(action: String, label: Int, icon: Int) = NotificationCompat.Action.Builder(
-            icon, ctx.getString(label),
-            PendingIntent.getBroadcast(
-                ctx, (thread.id.toInt() * 4) + action.hashCode() % 4,
-                Intent(ctx, NotificationActionReceiver::class.java).setAction(action)
-                    .putExtra(NotificationActionReceiver.EXTRA_THREAD_ID, thread.id)
-                    .putExtra(NotificationActionReceiver.EXTRA_MESSAGE_KIND, m.kind.name)
-                    .putExtra(NotificationActionReceiver.EXTRA_MESSAGE_ID, m.id),
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
-            ),
-        ).build()
+        val copy = messageIntent(NotificationActionReceiver.ACTION_COPY_CODE, thread.id, m)
+        val delete = messageIntent(NotificationActionReceiver.ACTION_DELETE_MESSAGE, thread.id, m)
+        val view = RemoteViews(ctx.packageName, R.layout.notif_otp).apply {
+            setTextViewText(R.id.otp_code, code)
+            setTextViewText(R.id.otp_from, ctx.getString(R.string.otp_from, thread.title))
+            setOnClickPendingIntent(R.id.otp_copy, copy)
+            setOnClickPendingIntent(R.id.otp_delete, delete)
+        }
+        // The buttons live in the custom view; watches and Auto get the same two as regular actions.
+        val wear = NotificationCompat.WearableExtender()
+            .addAction(NotificationCompat.Action.Builder(R.drawable.ic_notif_copy, ctx.getString(R.string.copy), copy).build())
+            .addAction(NotificationCompat.Action.Builder(R.drawable.ic_notif_delete, ctx.getString(R.string.delete), delete).build())
         val n = NotificationCompat.Builder(ctx, CHANNEL_OTP)
             .setSmallIcon(R.drawable.ic_notification)
+            // Title/text stay set for accessibility, watches and the "ongoing" summary.
             .setContentTitle(code)
             .setContentText(ctx.getString(R.string.otp_from, thread.title))
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+            .setCustomContentView(view)
+            .setCustomHeadsUpContentView(view)
+            .setCustomBigContentView(view)
+            .extend(wear)
             .setCategory(NotificationCompat.CATEGORY_MESSAGE)
             .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
             .setPublicVersion(publicVersion(CHANNEL_OTP, R.string.otp_received))
             .setContentIntent(openThreadIntent(thread.id))
             .setAutoCancel(true)
             .setTimeoutAfter(OTP_TIMEOUT_MS)
-            .addAction(messageAction(NotificationActionReceiver.ACTION_COPY_CODE, R.string.copy, R.drawable.ic_notification))
-            .addAction(messageAction(NotificationActionReceiver.ACTION_DELETE_MESSAGE, R.string.delete, R.drawable.ic_notification))
             .build()
         post(thread.id, n)
     }
+
+    /**
+     * Bank transaction (reference 2026-11-24): "- ₹ 3,500 UPI" in red when money left the account,
+     * "+ ₹ 200 IMPS" in green when it arrived, "From/To <bank> <account>" below, and a bank icon.
+     * Expanded: Mark read and Balance (opens the Finance tab, which keeps its own lock).
+     */
+    private fun postTransaction(thread: ConversationThread, m: Message, t: TransactionAlert) {
+        val sign = if (t.debit) "- " else "+ "
+        val amount = sign + Money.formatInr(t.amount)
+        val title = SpannableStringBuilder(amount).apply {
+            setSpan(ForegroundColorSpan(ctx.getColor(if (t.debit) R.color.notif_debit else R.color.notif_credit)), 0, amount.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            setSpan(StyleSpan(Typeface.BOLD), 0, amount.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            append("  ").append(t.mode)
+        }
+        val account = listOf(t.bank, t.mask).filter { it.isNotBlank() }.joinToString(" ")
+        val sub = ctx.getString(if (t.debit) R.string.txn_from else R.string.txn_to, account)
+        val view = RemoteViews(ctx.packageName, R.layout.notif_txn).apply {
+            setTextViewText(R.id.txn_title, title)
+            setTextViewText(R.id.txn_account, sub)
+        }
+        val balance = NotificationCompat.Action.Builder(
+            R.drawable.ic_notif_bank, ctx.getString(R.string.balance),
+            PendingIntent.getActivity(
+                ctx, 0,
+                Intent(ctx, InternalLinkActivity::class.java).setAction(InternalLinkActivity.ACTION_VIEW_FINANCE),
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+            ),
+        ).build()
+        val n = NotificationCompat.Builder(ctx, CHANNEL_MESSAGES)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(title)
+            .setContentText(sub)
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+            .setCustomContentView(view)
+            .setCustomHeadsUpContentView(view)
+            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+            .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
+            .setPublicVersion(publicVersion(CHANNEL_MESSAGES, R.string.new_message))
+            .setContentIntent(openThreadIntent(thread.id))
+            .setWhen(m.dateMillis)
+            .setAutoCancel(true)
+            .addAction(markReadAction(thread.id))
+            .addAction(balance)
+            .build()
+        post(thread.id, n)
+    }
+
+    /** Copy / Delete for one message. The receiver re-reads the message; nothing sensitive rides in the intent. */
+    private fun messageIntent(action: String, threadId: Long, m: Message): PendingIntent = PendingIntent.getBroadcast(
+        ctx, (threadId.toInt() * 4) + (action.hashCode() and 3),
+        Intent(ctx, NotificationActionReceiver::class.java).setAction(action).setPackage(ctx.packageName)
+            .putExtra(NotificationActionReceiver.EXTRA_THREAD_ID, threadId)
+            .putExtra(NotificationActionReceiver.EXTRA_MESSAGE_KIND, m.kind.name)
+            .putExtra(NotificationActionReceiver.EXTRA_MESSAGE_ID, m.id),
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+    )
 
     private fun post(threadId: Long, n: Notification) {
         try {

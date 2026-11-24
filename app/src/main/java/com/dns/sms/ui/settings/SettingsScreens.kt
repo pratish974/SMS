@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.SimCard
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -40,6 +41,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -78,10 +80,8 @@ private val Blue = Color(0xFF42A5F5)
 fun SettingsScreen(onBack: () -> Unit, open: (String) -> Unit, vm: SettingsViewModel = hiltViewModel()) {
     val s = vm.settings
     val isDefault by vm.gate.isDefault.collectAsStateWithLifecycle()
-    val ownNumber by s.ownNumber.flow.collectAsStateWithLifecycle()
     val security by s.financeSecurity.flow.collectAsStateWithLifecycle()
     val quick by s.showQuickReplies.flow.collectAsStateWithLifecycle()
-    var dialog by rememberSaveable { mutableStateOf("") }
 
     SettingsScaffold(stringResource(R.string.settings), onBack) {
         SettingRow(stringResource(R.string.app_status), if (isDefault) stringResource(R.string.default_sms_app) else stringResource(R.string.not_default), icon = Icons.Filled.Flag, tint = Green) { open("status") }
@@ -90,16 +90,76 @@ fun SettingsScreen(onBack: () -> Unit, open: (String) -> Unit, vm: SettingsViewM
         SettingRow(stringResource(R.string.backup_restore), icon = Icons.Filled.Backup, tint = Purple) { open("backup") }
         SettingRow(stringResource(R.string.message_rules), icon = Icons.Filled.Delete, tint = Gray) { open("rules") }
         SettingRow(stringResource(R.string.notifications), icon = Icons.Filled.Notifications, tint = Yellow) { open("notifications") }
-        SettingRow(stringResource(R.string.phone_number), ownNumber.ifBlank { stringResource(R.string.unknown_value) }, icon = Icons.Filled.PhoneAndroid, tint = Red) { dialog = "number" }
+        SimSettings(vm)
         SettingRow(stringResource(R.string.swipe_actions), icon = Icons.AutoMirrored.Filled.CompareArrows, tint = Olive) { open("swipe") }
         SwitchRow(stringResource(R.string.finance_security), security, icon = Icons.Filled.Shield, tint = Green) { s.financeSecurity.value = it }
         SwitchRow(stringResource(R.string.show_quick_replies), quick, icon = Icons.AutoMirrored.Filled.Chat, tint = Teal) { s.showQuickReplies.value = it }
         SettingRow(stringResource(R.string.edit_quick_replies), icon = Icons.Filled.Edit, tint = Teal) { open("quick_replies") }
         SettingRow(stringResource(R.string.about), icon = Icons.Filled.Info, tint = Blue) { open("about") }
     }
+}
+
+/**
+ * Default SIM + one "Phone number (SIM n)" row per SIM (reference screenshots 2026-11-24). Works for any
+ * mix: two physical SIMs, physical + eSIM, or more. A single-SIM phone shows just "Phone number".
+ */
+@Composable
+private fun SimSettings(vm: SettingsViewModel) {
+    val s = vm.settings
+    val sims by vm.simList.collectAsStateWithLifecycle()
+    val defaultSub by s.defaultSubId.flow.collectAsStateWithLifecycle()
+    var hasPermission by remember { mutableStateOf(vm.sims.hasPermission()) }
+    var dialog by rememberSaveable { mutableStateOf("") }
+    var editingSlot by rememberSaveable { mutableIntStateOf(-1) }
+    val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        hasPermission = granted
+        vm.refreshSims()
+        if (granted && dialog == "pending_sim") dialog = "sim" else if (dialog == "pending_sim") dialog = ""
+    }
+    LaunchedEffect(hasPermission) { vm.refreshSims() }
+
+    // Without the permission the SIMs can't be listed, but the slot count is still known.
+    val slots: List<Int> = if (sims.isNotEmpty()) sims.map { it.slot } else (0 until vm.sims.slotCount().coerceAtLeast(1)).toList()
+    val multi = slots.size > 1
+    if (multi) {
+        val current = sims.firstOrNull { it.subId == defaultSub }?.shortName
+            ?: sims.firstOrNull { it.subId == vm.sims.defaultSmsSubId() }?.let { stringResource(R.string.sim_phone_default_named, it.shortName) }
+            ?: stringResource(R.string.sim_phone_default)
+        SettingRow(stringResource(R.string.default_sim), current, icon = Icons.Filled.SimCard, tint = Blue) {
+            if (hasPermission) { vm.refreshSims(); dialog = "sim" }
+            else { dialog = "pending_sim"; permission.launch(android.Manifest.permission.READ_PHONE_STATE) }
+        }
+    }
+    slots.forEach { slot ->
+        val number by s.ownNumberFor(slot).flow.collectAsStateWithLifecycle()
+        val title = if (multi) stringResource(R.string.phone_number_sim, slot + 1) else stringResource(R.string.phone_number_single)
+        SettingRow(title, number.ifBlank { stringResource(R.string.unknown_value) }, icon = Icons.Filled.PhoneAndroid, tint = Red) {
+            editingSlot = slot
+            dialog = "number"
+        }
+    }
+
     when (dialog) {
-        "number" -> TextDialog(stringResource(R.string.phone_number), ownNumber, stringResource(R.string.phone_number_hint),
-            { s.ownNumber.value = it.filter { c -> c.isDigit() || c == '+' } }, { dialog = "" }, maxLength = 20)
+        "sim" -> {
+            // null = follow the phone's own default SMS SIM.
+            val options: List<com.dns.sms.sms.SimCards.Sim?> = listOf<com.dns.sms.sms.SimCards.Sim?>(null) + sims
+            val selected = sims.firstOrNull { it.subId == defaultSub }
+            if (sims.isEmpty()) {
+                ConfirmDialog(stringResource(R.string.default_sim), stringResource(R.string.no_sims), stringResource(R.string.ok), { dialog = "" }, { dialog = "" })
+            } else ChoiceDialog(
+                stringResource(R.string.default_sim), options, selected,
+                { it?.label ?: stringResource(R.string.sim_phone_default) },
+                { s.defaultSubId.value = it?.subId ?: -1; dialog = "" }, { dialog = "" },
+            )
+        }
+        "number" -> if (editingSlot >= 0) {
+            val setting = s.ownNumberFor(editingSlot)
+            // Pre-fill with the number the SIM reports, when the phone exposes it.
+            val initial = setting.value.ifBlank { sims.firstOrNull { it.slot == editingSlot }?.number.orEmpty() }
+            val title = if (multi) stringResource(R.string.phone_number_sim, editingSlot + 1) else stringResource(R.string.phone_number_single)
+            TextDialog(title, initial, stringResource(R.string.phone_number_hint),
+                { setting.value = it.filter { c -> c.isDigit() || c == '+' } }, { dialog = ""; editingSlot = -1 }, maxLength = 20)
+        }
     }
 }
 
@@ -219,6 +279,7 @@ fun SwipeSettingsScreen(onBack: () -> Unit, vm: SettingsViewModel = hiltViewMode
 fun AboutScreen(onBack: () -> Unit) {
     com.dns.sms.ui.finance.TouchGuard()
     val ctx = LocalContext.current
+    val res = androidx.compose.ui.platform.LocalResources.current
     SettingsScaffold(stringResource(R.string.about), onBack) {
         Column(Modifier.padding(16.dp)) {
             Text(stringResource(R.string.app_name), style = MaterialTheme.typography.titleLarge)
@@ -227,7 +288,7 @@ fun AboutScreen(onBack: () -> Unit) {
             Text(stringResource(R.string.about_data), Modifier.padding(top = 8.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
             // Play requires the privacy policy to be reachable inside the app (Requirement.md section 8).
             TextButton(onClick = {
-                try { ctx.startActivity(Intent(Intent.ACTION_VIEW, ctx.getString(R.string.privacy_policy_url).toUri())) }
+                try { ctx.startActivity(Intent(Intent.ACTION_VIEW, res.getString(R.string.privacy_policy_url).toUri())) }
                 catch (_: ActivityNotFoundException) { }
             }, Modifier.padding(top = 16.dp)) { Text(stringResource(R.string.privacy_policy)) }
             // Local crash log: only shared when the user chooses; contains no message content.
@@ -235,9 +296,9 @@ fun AboutScreen(onBack: () -> Unit) {
             if (crashes.isNotEmpty()) Row {
                 TextButton(onClick = {
                     val send = Intent(Intent.ACTION_SEND).setType("text/plain")
-                        .putExtra(Intent.EXTRA_SUBJECT, ctx.getString(R.string.crash_log_subject, BuildConfig.VERSION_NAME))
+                        .putExtra(Intent.EXTRA_SUBJECT, res.getString(R.string.crash_log_subject, BuildConfig.VERSION_NAME))
                         .putExtra(Intent.EXTRA_TEXT, crashes)
-                    try { ctx.startActivity(Intent.createChooser(send, ctx.getString(R.string.share_crash_log))) }
+                    try { ctx.startActivity(Intent.createChooser(send, res.getString(R.string.share_crash_log))) }
                     catch (_: ActivityNotFoundException) { }
                 }) { Text(stringResource(R.string.share_crash_log)) }
                 TextButton(onClick = { com.dns.sms.util.CrashLog.clear(ctx) }) { Text(stringResource(R.string.clear_crash_log)) }
@@ -297,7 +358,7 @@ fun BackupScreen(onBack: () -> Unit, vm: SettingsViewModel = hiltViewModel()) {
     SettingsScaffold(stringResource(R.string.backup_restore), onBack) {
         Column(Modifier.padding(16.dp)) {
             if (lastAt > 0) Text(
-                stringResource(R.string.last_backup, DateTimeFormatter.ofPattern("d MMM yyyy, h:mm a", Locale.getDefault()).format(Instant.ofEpochMilli(lastAt).atZone(ZoneId.systemDefault())), sizeText(lastBytes)),
+                stringResource(R.string.last_backup, DateTimeFormatter.ofPattern("d MMM yyyy, h:mm a", androidx.compose.ui.platform.LocalConfiguration.current.locales[0]).format(Instant.ofEpochMilli(lastAt).atZone(ZoneId.systemDefault())), sizeText(lastBytes)),
                 style = MaterialTheme.typography.labelLarge,
             )
             if (lastError == "screen-lock") Text(stringResource(R.string.backup_needs_lock), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelMedium)

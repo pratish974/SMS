@@ -69,6 +69,7 @@ import com.dns.sms.ui.conversation.MessageList
 @Composable
 fun NewMessageScreen(onBack: () -> Unit, onSent: (Long) -> Unit, vm: NewMessageViewModel = hiltViewModel()) {
     val ctx = LocalContext.current
+    val res = androidx.compose.ui.platform.LocalResources.current
     val recipients by vm.recipients.collectAsStateWithLifecycle()
     val query by vm.query.collectAsStateWithLifecycle()
     val results by vm.results.collectAsStateWithLifecycle()
@@ -101,7 +102,7 @@ fun NewMessageScreen(onBack: () -> Unit, onSent: (Long) -> Unit, vm: NewMessageV
                 is NewMessageViewModel.Event.Error -> Toast.makeText(ctx, e.message, Toast.LENGTH_SHORT).show()
                 NewMessageViewModel.Event.RecipientAdded -> runCatching { messageFocus.requestFocus() }
                 is NewMessageViewModel.Event.Scheduled -> {
-                    Toast.makeText(ctx, ctx.getString(R.string.scheduled_done, scheduleLabel(ctx, e.at)), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(ctx, res.getString(R.string.scheduled_done, scheduleLabel(ctx, e.at)), Toast.LENGTH_SHORT).show()
                     if (vm.canSendOnTime()) onBack() else askExactTiming = true
                 }
             }
@@ -153,6 +154,9 @@ fun NewMessageScreen(onBack: () -> Unit, onSent: (Long) -> Unit, vm: NewMessageV
                     // BasicTextField: Material TextField has a 280dp minimum width, which pushed it
                     // onto its own line as soon as one chip was added.
                     val fieldColor = MaterialTheme.colorScheme.onSurface
+                    // The String overload is deprecated in Compose 1.13; moving to TextFieldState means
+                    // reworking how NewMessageViewModel.query drives contact search, so it's kept for now.
+                    @Suppress("DEPRECATION")
                     androidx.compose.foundation.text.BasicTextField(
                         value = query, onValueChange = { vm.query.value = it.take(64) },
                         singleLine = true,

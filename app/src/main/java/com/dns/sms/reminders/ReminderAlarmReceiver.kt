@@ -22,6 +22,8 @@ import java.util.Locale
  */
 class ReminderAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
+        // Act only on the broadcasts this receiver is registered for (CodeQL: verify the intent's action).
+        if (intent.action !in HANDLED) return
         val app = context.entry()
         runAsync {
             val scheduler = app.reminderScheduler()
@@ -65,5 +67,16 @@ class ReminderAlarmReceiver : BroadcastReceiver() {
         try { NotificationManagerCompat.from(ctx).notify("reminder", (id % Int.MAX_VALUE).toInt(), n) } catch (_: SecurityException) { }
     }
 
-    companion object { const val ACTION_FIRE = "com.dns.sms.REMINDER_FIRE" }
+    companion object {
+        const val ACTION_FIRE = "com.dns.sms.REMINDER_FIRE"
+
+        /** Our own alarm plus the system events in the manifest's intent filter. */
+        private val HANDLED = setOf(
+            ACTION_FIRE,
+            Intent.ACTION_BOOT_COMPLETED,
+            Intent.ACTION_MY_PACKAGE_REPLACED,
+            Intent.ACTION_TIMEZONE_CHANGED,
+            Intent.ACTION_TIME_CHANGED, // "android.intent.action.TIME_SET"
+        )
+    }
 }

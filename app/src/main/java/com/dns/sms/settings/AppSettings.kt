@@ -64,7 +64,14 @@ class AppSettings @Inject constructor(@ApplicationContext ctx: Context) {
     val deleteOtpAfterCopy = bool("otp_delete_after_copy", false)
 
     // Messaging
+    /** This phone's number; with several SIMs, the number of SIM 1 (see [ownNumberFor]). */
     val ownNumber = string("own_number")
+    private val slotNumbers = HashMap<Int, Setting<String>>()
+    /** The number of the SIM in [slot] (0-based), typed by the user. Slot 0 keeps the single-SIM key. */
+    @Synchronized fun ownNumberFor(slot: Int): Setting<String> =
+        if (slot <= 0) ownNumber else slotNumbers.getOrPut(slot) { string("own_number_slot_$slot") }
+    /** Subscription id of the SIM new conversations send from; -1 = the phone's default SMS SIM. */
+    val defaultSubId = Setting("default_sub_id", -1, { k, d -> sp.getInt(k, d) }, { k, v -> putInt(k, v) })
     val showQuickReplies = bool("show_quick_replies", true)
     /** Editable quick replies (Settings > Quick replies); defaults from resources. */
     val quickReplies = Setting(

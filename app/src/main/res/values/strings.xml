@@ -186,7 +186,11 @@
     <string name="backup_restore">Backup &amp; restore</string>
     <string name="message_rules">Message rules</string>
     <string name="notifications">Notifications</string>
-    <string name="phone_number">Phone number (SIM 1)</string>
+    <string name="phone_number_single">Phone number</string>
+    <string name="phone_number_sim">Phone number (SIM%1$d)</string>
+    <string name="default_sim">Default SIM</string>
+    <string name="sim_phone_default">Phone default</string>
+    <string name="sim_phone_default_named">Phone default (%1$s)</string>
     <string name="phone_number_hint">Your number (optional; used for group messages in a future update)</string>
     <string name="unknown_value">Unknown</string>
     <string name="swipe_actions">Swipe actions</string>
@@ -297,6 +301,9 @@
     <string name="copy_otp">Copy OTP</string>
     <string name="otp_from">OTP from %1$s</string>
     <string name="copy">Copy</string>
+    <string name="txn_from">From %1$s</string>
+    <string name="txn_to">To %1$s</string>
+    <string name="balance">Balance</string>
     <string name="pin_chat">Pin chat</string>
     <string name="unpin_chat">Unpin chat</string>
     <string name="new_message">New message</string>

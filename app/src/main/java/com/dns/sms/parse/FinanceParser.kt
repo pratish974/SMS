@@ -53,6 +53,12 @@ object FinanceParser {
         return FinanceUpdate(Banks.nameFor(sender), mask, balance, txn?.first, txn?.second)
     }
 
+    /** "DEBIT"/"CREDIT" and the amount, without needing an account number (e.g. card spends). Never throws. */
+    fun transaction(body: String): Pair<String, BigDecimal>? = runCatching {
+        val b = body.take(MAX_INPUT)
+        if (notFinance.containsMatchIn(b)) null else txnOf(b)
+    }.getOrNull()
+
     private fun txnOf(body: String): Pair<String, BigDecimal>? {
         debitBefore.find(body)?.let { m -> Money.parse(m.groupValues[1])?.let { return "DEBIT" to it } }
         creditBefore.find(body)?.let { m -> Money.parse(m.groupValues[1])?.let { return "CREDIT" to it } }

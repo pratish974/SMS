@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The app's only network use is the encrypted Google Drive backup (www.googleapis.com, DriveClient).
+  Certificate pinning (CodeQL "Android missing certificate pinning"): that connection is accepted only if
+  its certificate chain runs through one of Google Trust Services' roots, or GlobalSign roots as backup,
+  so a CA that was tricked or a user-installed certificate can't intercept the backup upload.
+  Pins are SHA-256 hashes of each root's public key, computed from https://pki.goog/roots.pem
+  on 2026-11-24. After the expiration date pinning switches itself off (normal HTTPS checks still apply),
+  so a future Google root change can't break backups for users who don't update; refresh pins before then.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="false">www.googleapis.com</domain>
+        <pin-set expiration="2028-06-01">
+            <!-- GTS Root R1 - R4 -->
+            <pin digest="SHA-256">hxqRlPTu1bMS/0DITB1SSu0vd4u/8l8TjPgfaAp63Gc=</pin>
+            <pin digest="SHA-256">Vfd95BwDeSQo+NUYxVEEIlvkOlWY2SalKK1lPhzOx78=</pin>
+            <pin digest="SHA-256">QXnt2YHvdHR3tJYmQIr0Paosp6t/nggsEGD4QJZ3Q0g=</pin>
+            <pin digest="SHA-256">mEflZT5enoR1FuXLgYYGqnVEoZvmf9c2bVBpiOjYQ0c=</pin>
+            <!-- GlobalSign roots listed by Google as backups -->
+            <pin digest="SHA-256">aCdH+LpiG4fN07wpXtXKvOciocDANj0daLOJKNJ4fx4=</pin>
+            <pin digest="SHA-256">cGuxAXyFXFkWm61cF4HPWX8S0srS9j0aSqN0k4AP+4A=</pin>
+            <pin digest="SHA-256">CLOmM1/OXvSPjw5UOYbAf9GKOxImEp9hhku9W90fHMk=</pin>
+            <pin digest="SHA-256">fg6tdrtoGdwvVFEahDVPboswe53YIFjqbABPAdndpd8=</pin>
+        </pin-set>
+    </domain-config>
+</network-security-config>

@@ -26,13 +26,16 @@ class SmsSender @Inject constructor(
     private val gate: DefaultSmsGate,
     private val repo: ConversationRepository,
     private val threadMetas: com.dns.sms.data.ThreadMetaDao,
+    private val sims: com.dns.sms.sms.SimCards,
+    private val settings: com.dns.sms.settings.AppSettings,
 ) {
     /** Writes the message to the outbox and sends it. Returns the thread id, or null if not allowed. */
     suspend fun send(address: String, body: String, threadId: Long? = null): Long? = withContext(Dispatchers.IO) {
         if (!gate.isDefaultNow() || body.isBlank() || address.isBlank()) return@withContext null
         val tid = threadId ?: repo.threadIdFor(listOf(address))
-        // The SIM picked for this conversation wins; otherwise the one it last used.
-        val subId = threadMetas.one(tid)?.subId ?: repo.lastSubId(tid)
+        // The SIM picked for this conversation wins; otherwise the one it last used; otherwise the
+        // Default SIM from Settings (new conversations), falling back to the phone's default.
+        val subId = threadMetas.one(tid)?.subId ?: repo.lastSubId(tid) ?: sims.preferredSubId(settings.defaultSubId.value)
         val values = ContentValues().apply {
             put(Telephony.Sms.ADDRESS, address)
             put(Telephony.Sms.BODY, body)

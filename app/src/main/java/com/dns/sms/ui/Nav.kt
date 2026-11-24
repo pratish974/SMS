@@ -48,6 +48,7 @@ sealed interface NavRequest {
     data class Compose(val to: List<String>, val body: String?) : NavRequest
     data object Reminders : NavRequest
     data object Scheduled : NavRequest
+    data object Finance : NavRequest
 }
 
 private const val HOME = "home"
@@ -106,6 +107,7 @@ fun AppNav(gate: DefaultSmsGate, prefs: AppPrefs, contacts: ContactNames, settin
 
     val nav = rememberNavController()
     val ctx = LocalContext.current
+    val res = androidx.compose.ui.platform.LocalResources.current
     var tabRequest by remember { mutableStateOf<TopTab?>(null) }
     LaunchedEffect(nav) {
         requests.collect { r ->
@@ -118,6 +120,10 @@ fun AppNav(gate: DefaultSmsGate, prefs: AppPrefs, contacts: ContactNames, settin
                 NavRequest.Reminders -> {
                     nav.popBackStack(HOME, inclusive = false)
                     tabRequest = TopTab.REMINDERS
+                }
+                NavRequest.Finance -> {
+                    nav.popBackStack(HOME, inclusive = false)
+                    tabRequest = TopTab.FINANCE
                 }
             }
         }
@@ -163,16 +169,16 @@ fun AppNav(gate: DefaultSmsGate, prefs: AppPrefs, contacts: ContactNames, settin
                             )
                         },
                         menu = listOf(
-                            MenuEntry(ctx.getString(R.string.refresh_cards)) { SmsScanWorker.enqueue(ctx, full = true) },
-                            MenuEntry(ctx.getString(R.string.add_reminder)) { nav.navigate(ADD_REMINDER) },
-                            MenuEntry(ctx.getString(R.string.show_past_reminders)) { nav.navigate(PAST_REMINDERS) },
-                            MenuEntry(ctx.getString(R.string.show_past_orders)) { nav.navigate(PAST_ORDERS) },
+                            MenuEntry(res.getString(R.string.refresh_cards)) { SmsScanWorker.enqueue(ctx, full = true) },
+                            MenuEntry(res.getString(R.string.add_reminder)) { nav.navigate(ADD_REMINDER) },
+                            MenuEntry(res.getString(R.string.show_past_reminders)) { nav.navigate(PAST_REMINDERS) },
+                            MenuEntry(res.getString(R.string.show_past_orders)) { nav.navigate(PAST_ORDERS) },
                         ),
                         onFab = { nav.navigate(ADD_REMINDER) },
                     ),
                     finance = TabSlot(
                         content = { m -> FinanceScreen(onOpenAccount = { a -> nav.navigate(accountRoute(a.bank, a.masks.joinToString(","))) }, modifier = m) },
-                        menu = listOf(MenuEntry(ctx.getString(R.string.refresh_cards)) { SmsScanWorker.enqueue(ctx, full = true) }),
+                        menu = listOf(MenuEntry(res.getString(R.string.refresh_cards)) { SmsScanWorker.enqueue(ctx, full = true) }),
                     ),
                 )
             }

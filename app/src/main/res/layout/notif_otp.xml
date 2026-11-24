@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- OTP notification (reference 2026-11-19): big code, "OTP from <sender>", Copy and Delete buttons inline. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:baselineAligned="false"
+    tools:ignore="UseCompatTextViewDrawableXml"
     android:gravity="center_vertical"
     android:orientation="horizontal">
 
@@ -35,49 +38,31 @@
             android:textSize="13sp" />
     </LinearLayout>
 
-    <LinearLayout
+    <!-- Icon above label: one TextView with a top compound drawable each. Plain android:drawableTop on
+         purpose: notifications are RemoteViews, where AppCompat attributes do not work. -->
+    <TextView
         android:id="@+id/otp_copy"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:drawableTop="@drawable/ic_notif_copy"
+        android:drawablePadding="1dp"
         android:gravity="center_horizontal"
-        android:orientation="vertical"
-        android:paddingHorizontal="8dp">
+        android:includeFontPadding="false"
+        android:paddingHorizontal="8dp"
+        android:text="@string/copy"
+        android:textColor="@color/notif_action"
+        android:textSize="12sp" />
 
-        <ImageView
-            android:layout_width="22dp"
-            android:layout_height="22dp"
-            android:contentDescription="@string/copy"
-            android:src="@drawable/ic_notif_copy" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:includeFontPadding="false"
-            android:text="@string/copy"
-            android:textColor="@color/notif_action"
-            android:textSize="12sp" />
-    </LinearLayout>
-
-    <LinearLayout
+    <TextView
         android:id="@+id/otp_delete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:drawableTop="@drawable/ic_notif_delete"
+        android:drawablePadding="1dp"
         android:gravity="center_horizontal"
-        android:orientation="vertical"
-        android:paddingHorizontal="8dp">
-
-        <ImageView
-            android:layout_width="22dp"
-            android:layout_height="22dp"
-            android:contentDescription="@string/delete"
-            android:src="@drawable/ic_notif_delete" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:includeFontPadding="false"
-            android:text="@string/delete"
-            android:textColor="@color/notif_action"
-            android:textSize="12sp" />
-    </LinearLayout>
+        android:includeFontPadding="false"
+        android:paddingHorizontal="8dp"
+        android:text="@string/delete"
+        android:textColor="@color/notif_action"
+        android:textSize="12sp" />
 </LinearLayout>
